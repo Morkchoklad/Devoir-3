@@ -129,8 +129,29 @@ class Trainer:
         :return: A PyTorch model implementing the CNN.
         """
         model = torch.nn.Sequential()
-        model.add_module("conv1", torch.nn.Conv2d)
+        #model.add_module("conv1", torch.nn.Conv2d)
         # TODO write code here
+        model.append(torch.nn.Conv2d(in_channels, net_config.n_channels[0], net_config.kernel_sizes[0], stride=net_config.strides[0]))
+        model.append(activation)
+        
+        for i in range(len(net_config.n_channels)-1):
+            model.append(torch.nn.MaxPool2d(kernel_size=2))
+            model.append(torch.nn.Conv2d(net_config.n_channels[i], net_config.n_channels[i+1], net_config.kernel_sizes[i+1], stride=net_config.strides[i+1]))
+            model.append(activation)
+        
+        model.append(torch.nn.AdaptiveMaxPool2d((4,4)))
+        model.append(torch.nn.Flatten())
+        
+        model.append(torch.nn.Linear(net_config.n_channels[-1]*4*4,net_config.dense_hiddens[0]))
+        model.append(activation)
+        
+        for i in range(len(net_config.dense_hiddens)-1):
+            model.append(torch.nn.Linear(net_config.dense_hiddens[i],net_config.dense_hiddens[i+1]))
+            model.append(activation)
+        
+        model.append(torch.nn.Linear(net_config.dense_hiddens[-1],1))
+        
+        return model
         pass
 
     @staticmethod
