@@ -101,11 +101,16 @@ class Trainer:
         :return: A PyTorch model implementing the MLP.
         """
         model = torch.nn.Sequential()
-        model.append(torch.nn.Flatten(input_dim))
+        
+        model.append(torch.nn.Flatten())
+        model.append(torch.nn.Linear(input_dim,net_config.dense_hiddens[0]))
+        model.append(activation)
+        
         for i in range(len(net_config.dense_hiddens)-1):
-            model.append(torch.nn.Linear(net_config.dense_hiddens[0],net_config.dense_hiddens[1]))
+            model.append(torch.nn.Linear(net_config.dense_hiddens[i],net_config.dense_hiddens[i+1]))
             model.append(activation)
-        model.append(torch.nn.Linear(net_config.dense_hiddens[0],net_config.dense_hiddens[1]))
+        
+        model.append(torch.nn.Linear(net_config.dense_hiddens[-1],1))
         
         return model
         pass
